@@ -104,6 +104,69 @@ class Project(models.Model):
         return self.name
 
 
+class Feedback(models.Model):
+
+
+    class FeedbackType(models.TextChoices):
+        BUG = 'BUG', _("Bug")
+        FEATURE = 'FEATURE', _("Sugestão de Funcionalidade")
+        IMPROVEMENT = 'IMPROVEMENT', _("Melhoria")
+    
+
+    class Status(models.TextChoices):
+        RECEIVED = 'RECEIVED', _('Recebido')
+        IN_ANALYSIS = 'IN_ANALYSIS', _('Em Análise')
+        PLANNED = 'PLANNED', _('Planejado')
+        IMPLEMENTED = 'IMPLEMENTED', _('Implementado')
+        REJECTED = 'REJECTED', _('Rejeitado')
+    
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='feedbacks',
+        verbose_name=_("Projeto")
+    )
+    summary = models.CharField(
+        _("Resumo"),
+        max_length=255
+    )
+    description = models.TextField(
+        _("Descrição Completa"),
+        blank=True
+    )
+    feedback_type = models.CharField(
+        _("Tipo"),
+        max_length=20,
+        choices=FeedbackType.choices,
+        default=FeedbackType.BUG
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=20,
+        choices=Status.choices,
+        default=Status.RECEIVED
+    )
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='feedbacks_submitted',
+        verbose_name=_("Enviado por")
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("Criado em")
+    )
+
+    class Meta:
+        verbose_name = _("Feedback")
+        verbose_name_plural = _("Feedbacks")
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.summary
+
+
 class Task(models.Model):
     
 
@@ -180,6 +243,11 @@ class Task(models.Model):
         decimal_places=2,
         null=True, blank=True
     )
+    originating_feedback = models.ForeignKey(
+        Feedback,
+        on_delete=models.SET_NULL,
+        null=True, blank=True
+    )
     created_at = models.DateTimeField(
         _('Criado em'),
         auto_now_add=True
@@ -243,69 +311,6 @@ class Idea(models.Model):
     
     def __str__(self):
         return self.title
-
-
-class Feedback(models.Model):
-
-
-    class FeedbackType(models.TextChoices):
-        BUG = 'BUG', _("Bug")
-        FEATURE = 'FEATURE', _("Sugestão de Funcionalidade")
-        IMPROVEMENT = 'IMPROVEMENT', _("Melhoria")
-    
-
-    class Status(models.TextChoices):
-        RECEIVED = 'RECEIVED', _('Recebido')
-        IN_ANALYSIS = 'IN_ANALYSIS', _('Em Análise')
-        PLANNED = 'PLANNED', _('Planejado')
-        IMPLEMENTED = 'IMPLEMENTED', _('Implementado')
-        REJECTED = 'REJECTED', _('Rejeitado')
-    
-    project = models.ForeignKey(
-        Project,
-        on_delete=models.CASCADE,
-        related_name='feedbacks',
-        verbose_name=_("Projeto")
-    )
-    summary = models.CharField(
-        _("Resumo"),
-        max_length=255
-    )
-    description = models.TextField(
-        _("Descrição Completa"),
-        blank=True
-    )
-    feedback_type = models.CharField(
-        _("Tipo"),
-        max_length=20,
-        choices=FeedbackType.choices,
-        default=FeedbackType.BUG
-    )
-    status = models.CharField(
-        _("Status"),
-        max_length=20,
-        choices=Status.choices,
-        default=Status.RECEIVED
-    )
-    submitted_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='feedbacks_submitted',
-        verbose_name=_("Enviado por")
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_("Criado em")
-    )
-
-    class Meta:
-        verbose_name = _("Feedback")
-        verbose_name_plural = _("Feedbacks")
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return self.summary
 
 
 class Comment(models.Model):
