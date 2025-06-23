@@ -60,6 +60,7 @@ class Account(AbstractUser):
         default='America/Porto_Velho'
     )
     updated_at = models.DateTimeField(
+        _("Atualizado em"),
         auto_now=True
     )
     groups = models.ManyToManyField(
