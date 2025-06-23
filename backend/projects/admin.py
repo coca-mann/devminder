@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
-from backend.projects.models import Project, Tag, Task, Idea, Feedback, Attachment, Comment
+from backend.projects.models import Project, Tag, Task, Idea, Feedback, Attachment, Comment, ProjectMember
 
 
 class CommentInline(GenericTabularInline):
@@ -20,6 +20,13 @@ class TaskInline(admin.TabularInline):
     show_change_link = True
 
 
+class ProjectMemberInline(admin.TabularInline):
+    """Permite adicionar/editar membros diretamente na página do projeto."""
+    model = ProjectMember
+    extra = 1
+    autocomplete_fields = ['user'] 
+
+
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color')
@@ -28,11 +35,11 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'status', 'created_at', 'due_date')
-    list_filter = ('status', 'owner')
+    list_display = ('name', 'owner', 'status', 'is_archived', 'created_at', 'due_date')
+    list_filter = ('status', 'is_archived', 'owner')
     search_fields = ('name', 'description')
     date_hierarchy = 'created_at'
-    inlines = [TaskInline, CommentInline, AttachmentInline]
+    inlines = [ProjectMemberInline, TaskInline, CommentInline, AttachmentInline]
 
 
 @admin.register(Task)

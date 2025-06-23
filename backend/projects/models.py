@@ -28,6 +28,44 @@ class Tag(models.Model):
         return self.name
 
 
+class ProjectMember(models.Model):
+
+
+    class Role(models.TextChoices):
+        ADMIN = 'ADMIN', _('Admin')
+        DEVELOPER = 'DEVELOPER', _('Desenvolvedor')
+        TESTER = 'TESTER', _('Tester')
+        VIEWER = 'VIEWER', _('Leitor')
+
+    project = models.ForeignKey(
+        'Project',
+        on_delete=models.CASCADE,
+        verbose_name=_("Projeto")
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name=_("Usuário")
+    )
+    role = models.CharField(
+        _("Papel"),
+        max_length=20,
+        choices=Role.choices,
+        default=Role.DEVELOPER
+    )
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Membro do Projeto")
+        verbose_name_plural = _("Membros dos Projetos")
+        # Garante que um usuário não possa ser adicionado duas vezes ao mesmo projeto
+        unique_together = ('project', 'user')
+        ordering = ['-joined_at']
+
+    def __str__(self):
+        return f'{self.user} como {self.get_role_display()} em {self.project}'
+
+
 class Project(models.Model):
 
 
@@ -51,6 +89,17 @@ class Project(models.Model):
         max_length=20,
         choices=Status.choices,
         default=Status.NOT_STARTED
+    )
+    is_archived = models.BooleanField(
+        _("Arquivado"),
+        default=False,
+        help_text=_("Projetos arquivados são somente leitura e não aparecem nas listas principais.")
+    )
+    members = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        through=ProjectMember,
+        related_name='projects_member_of',
+        verbose_name=_("Membros")
     )
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
