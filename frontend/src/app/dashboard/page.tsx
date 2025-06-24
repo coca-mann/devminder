@@ -182,7 +182,7 @@ export default function Dashboard() {
                 return (
                   <div key={project.id}>
                     <div className="flex justify-between items-center mb-1">
-                      <Link href={`/projetos/${project.id}`} className="font-medium hover:text-primary">{project.name}</Link>
+                      <Link href={`/projects/${project.id}`} className="font-medium hover:text-primary">{project.name}</Link>
                       <Badge
                         variant="outline"
                         className={cn(

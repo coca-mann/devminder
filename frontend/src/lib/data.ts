@@ -294,11 +294,11 @@ export const tasks: Task[] = [
 ];
 
 export const activities: Activity[] = [
-  { id: 'act-1', userId: 'user-1', content: 'Comentou na tarefa <b>Refatorar autenticação</b>', targetLink: '/projetos/proj-1', timestamp: new Date(Date.now() - 3600000).toISOString() },
-  { id: 'act-2', userId: 'user-2', content: 'Adicionou um novo design à tarefa <b>Criar layout da página de produto</b>', targetLink: '/projetos/proj-1', timestamp: new Date(Date.now() - 3600000 * 3).toISOString() },
-  { id: 'act-3', userId: 'user-4', content: 'Moveu a tarefa <b>Criar layout da página de produto</b> para "Em Revisão"', targetLink: '/projetos/proj-1', timestamp: new Date(Date.now() - 3600000 * 5).toISOString() },
-  { id: 'act-4', userId: 'user-3', content: 'Criou o projeto <b>Sistema de Gestão Interna</b>', targetLink: '/projetos/proj-3', timestamp: new Date(Date.now() - 86400000).toISOString() },
-  { id: 'act-5', userId: 'user-5', content: 'Concluiu a tarefa <b>Definir paleta de cores</b>', targetLink: '/projetos/proj-2', timestamp: new Date(Date.now() - 86400000 * 2).toISOString() }
+  { id: 'act-1', userId: 'user-1', content: 'Comentou na tarefa <b>Refatorar autenticação</b>', targetLink: '/projects/proj-1', timestamp: new Date(Date.now() - 3600000).toISOString() },
+  { id: 'act-2', userId: 'user-2', content: 'Adicionou um novo design à tarefa <b>Criar layout da página de produto</b>', targetLink: '/projects/proj-1', timestamp: new Date(Date.now() - 3600000 * 3).toISOString() },
+  { id: 'act-3', userId: 'user-4', content: 'Moveu a tarefa <b>Criar layout da página de produto</b> para "Em Revisão"', targetLink: '/projects/proj-1', timestamp: new Date(Date.now() - 3600000 * 5).toISOString() },
+  { id: 'act-4', userId: 'user-3', content: 'Criou o projeto <b>Sistema de Gestão Interna</b>', targetLink: '/projects/proj-3', timestamp: new Date(Date.now() - 86400000).toISOString() },
+  { id: 'act-5', userId: 'user-5', content: 'Concluiu a tarefa <b>Definir paleta de cores</b>', targetLink: '/projects/proj-2', timestamp: new Date(Date.now() - 86400000 * 2).toISOString() }
 ];
 
 export const ideas: Idea[] = [
@@ -370,7 +370,7 @@ export const notifications: Notification[] = [
     {
         id: 'notif-1',
         text: '<b>João Silva</b> comentou na sua tarefa: <strong>"Finalizar Relatório Mensal"</strong>.',
-        link: '/projetos/proj-1',
+        link: '/projects/proj-1',
         timestamp: 'há 5 minutos',
         read: false,
         icon: 'comment',
@@ -378,7 +378,7 @@ export const notifications: Notification[] = [
     {
         id: 'notif-2',
         text: 'A tarefa <strong>"Deploy em Produção"</strong> foi concluída por <b>Maria Santos</b>.',
-        link: '/projetos/proj-2',
+        link: '/projects/proj-2',
         timestamp: 'há 1 hora',
         read: false,
         icon: 'task-completed',
@@ -386,7 +386,7 @@ export const notifications: Notification[] = [
     {
         id: 'notif-3',
         text: '<b>Pedro Costa</b> convidou você para o projeto <strong>"Website Redesign"</strong>.',
-        link: '/projetos/proj-4',
+        link: '/projects/proj-4',
         timestamp: 'há 3 horas',
         read: true,
         icon: 'project-created',
@@ -394,7 +394,7 @@ export const notifications: Notification[] = [
     {
         id: 'notif-4',
         text: 'Sua tarefa <strong>"Configurar pipeline de CI/CD"</strong> está com o prazo vencido.',
-        link: '/projetos/proj-2',
+        link: '/projects/proj-2',
         timestamp: 'há 1 dia',
         read: false,
         icon: 'task-completed'
@@ -402,7 +402,7 @@ export const notifications: Notification[] = [
     {
         id: 'notif-5',
         text: 'Novo comentário de <b>Ana Lima</b> em <strong>"Corrigir bug no sistema de pagamento"</strong>.',
-        link: '/projetos/proj-1',
+        link: '/projects/proj-1',
         timestamp: 'há 2 dias',
         read: true,
         icon: 'comment',
@@ -410,7 +410,7 @@ export const notifications: Notification[] = [
      {
         id: 'notif-6',
         text: '<b>Carlos Oliveira</b> criou um novo projeto: <strong>"Fitness App"</strong>.',
-        link: '/projetos/proj-2',
+        link: '/projects/proj-2',
         timestamp: 'há 4 dias',
         read: true,
         icon: 'project-created',

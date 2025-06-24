@@ -37,12 +37,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { projects, users, tasks as initialTasks, feedbacks as allFeedbacks, allTags, tagColors, type Task, type Attachment as ProjectAttachment } from '@/lib/data';
-import TaskList from '@/components/projetos/task-list';
-import TagPalette from '@/components/projetos/tag-palette';
+import TaskList from '@/components/projects/task-list';
+import TagPalette from '@/components/projects/tag-palette';
 import { Link2, Trash2, Target, CheckCircle2, CalendarDays, Users, Plus, Paperclip, FileUp, Tag as TagIcon } from 'lucide-react';
 import { differenceInDays } from 'date-fns';
 import CreateTaskModal from '@/components/modals/create-task-modal';
-import AttachmentCard from '@/components/projetos/attachment-card';
+import AttachmentCard from '@/components/projects/attachment-card';
 import FeedbackList from '@/components/feedback/feedback-list';
 import { cn } from '@/lib/utils';
 

@@ -25,8 +25,8 @@ import { ScrollArea } from '../ui/scroll-area';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/projetos', label: 'Projetos' },
-  { href: '/ideias', label: 'Ideias' },
+  { href: '/projects', label: 'Projetos' },
+  { href: '/ideas', label: 'Ideias' },
   { href: '/feedback', label: 'Feedback' },
 ];
 
@@ -165,7 +165,7 @@ export default function Header() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/perfil">Meu Perfil</Link>
+                <Link href="/profile">Meu Perfil</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Sair</DropdownMenuItem>
