@@ -28,12 +28,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
     'backend.accounts',
     'backend.projects',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -43,6 +45,26 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
+
+# Django Rest Framework
+REST_FRAMEWORK = {
+    # Usaremos a autenticação baseada em sessão por enquanto.
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    # Permissões padrão - só utilizadores autenticados podem aceder à API.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:9002",
+    "http://127.0.0.1:9002",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 
 TEMPLATES = [
     {
@@ -63,6 +85,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Authentication
 AUTH_USER_MODEL = 'accounts.Account'
+
+AUTHENTICATION_BACKENDS = [
+    'backend.accounts.backends.EmailBackend',
+]
 
 
 # Database
