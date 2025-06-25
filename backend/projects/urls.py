@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework_nested.routers import NestedDefaultRouter
 from rest_framework.routers import DefaultRouter
-from backend.projects.views import ProjectViewSet, TaskViewSet
+from backend.projects.views import ProjectViewSet, TaskViewSet, TagViewSet
 
 
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet, basename='project')
 router.register(r'tasks', TaskViewSet, basename='task')
+router.register(r'tags', TagViewSet, basename='tag')
 
 tasks_router = NestedDefaultRouter(router, r'projects', lookup='project')
 tasks_router.register(r'tasks', TaskViewSet, basename='project-tasks')

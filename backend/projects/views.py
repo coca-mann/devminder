@@ -1,7 +1,9 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django.db.models import Q
-from backend.projects.models import Project, ProjectMember, Task
-from backend.projects.serializers import ProjectListSerializer, ProjectDetailSerializer, TaskListSerializer, TaskDetailSerializer
+from backend.projects.models import Project, ProjectMember, Task, Tag
+from backend.projects.serializers import ProjectListSerializer, ProjectDetailSerializer, TaskListSerializer, TaskDetailSerializer, TaskTagActionSerializer, TagSerializer
 from backend.projects.permissions import IsMemberOrOwner, IsProjectAdminOrOwner
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -64,6 +66,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         )
 
 
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet somente de leitura para listar e obter tags.
+    Qualquer utilizador autenticado pode ver as tags disponíveis.
+    """
+    queryset = Tag.objects.all().order_by('name')
+    serializer_class = TagSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
 class TaskViewSet(viewsets.ModelViewSet):
     """
     ViewSet para gerir Tarefas. Funciona tanto para rotas aninhadas
@@ -110,3 +122,36 @@ class TaskViewSet(viewsets.ModelViewSet):
         # A validação de que o utilizador pertence ao projeto deve
         # ser adicionada no serializer para maior segurança.
         serializer.save()
+    
+    @action(detail=True, methods=['post'], url_path='manage-tags')
+    def manage_tags(self, request, pk=None):
+        """
+        Ação personalizada para adicionar ou remover uma tag de uma tarefa.
+        Espera um JSON com {"action": "add|remove", "tag_id": <id>}.
+        """
+        task = self.get_object() # Obtém a tarefa pelo pk da URL
+        serializer = TaskTagActionSerializer(data=request.data)
+
+        if serializer.is_valid():
+            tag_id = serializer.validated_data['tag_id']
+            action = serializer.validated_data['action']
+            
+            try:
+                tag = Tag.objects.get(pk=tag_id)
+            except Tag.DoesNotExist:
+                # Embora o serializer já valide, é uma boa prática ter isto.
+                return Response(
+                    {'error': 'Tag não encontrada'}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            if action == 'add':
+                task.tags.add(tag)
+            elif action == 'remove':
+                task.tags.remove(tag)
+
+            # Retorna a tarefa atualizada para o frontend poder atualizar o seu estado.
+            task_serializer = TaskDetailSerializer(task, context={'request': request})
+            return Response(task_serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

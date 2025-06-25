@@ -44,6 +44,23 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'color']
 
 
+class TaskTagActionSerializer(serializers.Serializer):
+    """
+    Serializer para validar a ação de adicionar/remover uma tag
+    de uma tarefa. Não está ligado a um modelo.
+    """
+    ACTION_CHOICES = ('add', 'remove')
+    
+    tag_id = serializers.IntegerField()
+    action = serializers.ChoiceField(choices=ACTION_CHOICES)
+
+    def validate_tag_id(self, value):
+        """Verifica se a tag com o ID fornecido realmente existe."""
+        if not Tag.objects.filter(pk=value).exists():
+            raise serializers.ValidationError("A tag com o ID fornecido não existe.")
+        return value
+
+
 class TaskListSerializer(serializers.ModelSerializer):
     """
     Serializer 'LEVE' para a listagem inicial de tarefas.
