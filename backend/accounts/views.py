@@ -5,22 +5,22 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import authenticate, login
 from .serializers import (
-    AccountRegistrationSerializer,
     AccountLoginSerializer,
-    AccountProfileSerializer
+    AccountProfileSerializer,
+    # AccountRegistrationSerializer
 )
-from .models import Account
+from backend.accounts.models import Account
 
 
-class AccountRegistrationView(APIView):
-    permission_classes = [AllowAny]
-    def post(self, request):
-        serializer = AccountRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class AccountRegistrationView(APIView):
+#     permission_classes = [AllowAny]
+#     def post(self, request):
+#         serializer = AccountRegistrationSerializer(data=request.data)
+#         if serializer.is_valid():
+#             user = serializer.save()
+#             token, created = Token.objects.get_or_create(user=user)
+#             return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountLoginView(APIView):
