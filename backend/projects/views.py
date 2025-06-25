@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 from django.db.models import Q
-from backend.projects.models import Project, ProjectMember
-from backend.projects.serializers import ProjectListSerializer, ProjectDetailSerializer
+from backend.projects.models import Project, ProjectMember, Task
+from backend.projects.serializers import ProjectListSerializer, ProjectDetailSerializer, TaskListSerializer, TaskDetailSerializer
 from backend.projects.permissions import IsMemberOrOwner, IsProjectAdminOrOwner
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -62,3 +62,51 @@ class ProjectViewSet(viewsets.ModelViewSet):
             user=self.request.user,
             role=ProjectMember.Role.ADMIN
         )
+
+
+class TaskViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gerir Tarefas. Funciona tanto para rotas aninhadas
+    (projects/1/tasks/) como para rotas diretas (tasks/42/).
+    """
+    serializer_class = TaskDetailSerializer # Usamos o serializer detalhado por padrão
+    permission_classes = [IsMemberOrOwner]
+
+    def get_queryset(self):
+        """
+        Filtra o queryset de forma inteligente.
+        Se a URL for aninhada, retorna apenas as tarefas principais do projeto.
+        Se a URL for direta, retorna todas as tarefas a que o utilizador tem acesso.
+        """
+        user = self.request.user
+        
+        # Queryset base: todas as tarefas de projetos em que o utilizador é membro ou dono.
+        allowed_projects = Project.objects.filter(Q(owner=user) | Q(members=user))
+        queryset = Task.objects.filter(project__in=allowed_projects)
+
+        # Se for um pedido de lista aninhado (ex: /projects/1/tasks/)
+        if 'project_pk' in self.kwargs and self.action == 'list':
+            project_id = self.kwargs['project_pk']
+            # Filtra apenas as tarefas de nível superior daquele projeto específico
+            return queryset.filter(project_id=project_id, parent_task__isnull=True)
+        
+        return queryset
+
+    def get_serializer_class(self):
+        """
+        Retorna o serializer leve para a lista e o pesado para os detalhes.
+        """
+        if self.action == 'list':
+            # Para /projects/1/tasks/
+            return TaskListSerializer
+        # Para /tasks/42/ (retrieve, update, create)
+        return TaskDetailSerializer
+
+    def perform_create(self, serializer):
+        """
+        Associa a tarefa ao projeto correto ao ser criada.
+        O ID do projeto vem do corpo do pedido, não mais da URL.
+        """
+        # A validação de que o utilizador pertence ao projeto deve
+        # ser adicionada no serializer para maior segurança.
+        serializer.save()

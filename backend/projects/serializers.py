@@ -1,7 +1,40 @@
 from datetime import date
 from rest_framework import serializers
-from backend.projects.models import Project, ProjectMember, Tag, Task
+from backend.projects.models import Project, ProjectMember, Tag, Task, Comment, Attachment
 from backend.accounts.models import Account
+
+
+class AssigneeSerializer(serializers.ModelSerializer):
+    """Serializer leve para mostrar o responsável pela tarefa."""
+    class Meta:
+        model = Account
+        fields = ['id', 'first_name', 'last_name', 'profile_picture']
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Serializer para exibir os comentários de uma tarefa."""
+    author = AssigneeSerializer(read_only=True)
+    class Meta:
+        model = Comment
+        fields = ['id', 'text', 'author', 'created_at']
+
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    """Serializer para exibir os anexos de uma tarefa."""
+    uploaded_by = AssigneeSerializer(read_only=True)
+    class Meta:
+        model = Attachment
+        fields = ['id', 'file', 'description', 'uploaded_by', 'uploaded_at']
+
+
+class RecursiveField(serializers.Serializer):
+    """
+    Um campo especial para lidar com a recursividade das subtarefas.
+    Ele chama o serializer pai para serializar os filhos.
+    """
+    def to_representation(self, value):
+        serializer = self.parent.parent.__class__(value, context=self.context)
+        return serializer.data
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -9,6 +42,44 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ['id', 'name', 'color']
+
+
+class TaskListSerializer(serializers.ModelSerializer):
+    """
+    Serializer 'LEVE' para a listagem inicial de tarefas.
+    Inclui subtarefas de forma recursiva.
+    """
+    assignee = AssigneeSerializer(read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
+    # Aqui está a magia da recursividade para as subtarefas
+    subtasks = RecursiveField(many=True, read_only=True)
+
+    class Meta:
+        model = Task
+        fields = [
+            'id', 'title', 'status', 'priority', 'due_date', 'updated_at',
+            'assignee', 'tags', 'subtasks'
+        ]
+
+
+class TaskDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer 'PESADO' para os detalhes de UMA tarefa.
+    Carrega os comentários e anexos.
+    """
+    assignee = AssigneeSerializer(read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
+    # Serializa os comentários e anexos associados a esta tarefa
+    comments = CommentSerializer(many=True, read_only=True)
+    attachments = AttachmentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Task
+        fields = [
+            'id', 'title', 'description', 'status', 'priority',
+            'start_date', 'due_date', 'estimated_hours',
+            'assignee', 'tags', 'comments', 'attachments', 'project', 'parent_task'
+        ]
 
 
 class MemberSerializer(serializers.ModelSerializer):
