@@ -27,6 +27,26 @@ class AttachmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'file', 'description', 'uploaded_by', 'uploaded_at']
 
 
+class CommentCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer para a criação de um novo comentário.
+    O utilizador só precisa de fornecer o texto.
+    """
+    class Meta:
+        model = Comment
+        fields = ['text'] # Apenas o campo de texto é enviado pelo utilizador
+
+
+class AttachmentCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer para a criação de um novo anexo.
+    O utilizador envia o ficheiro e, opcionalmente, uma descrição.
+    """
+    class Meta:
+        model = Attachment
+        fields = ['file', 'description']
+
+
 class RecursiveField(serializers.Serializer):
     """
     Um campo especial para lidar com a recursividade das subtarefas.

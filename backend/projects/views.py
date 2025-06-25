@@ -1,9 +1,11 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
-from backend.projects.models import Project, ProjectMember, Task, Tag
-from backend.projects.serializers import ProjectListSerializer, ProjectDetailSerializer, TaskListSerializer, TaskDetailSerializer, TaskTagActionSerializer, TagSerializer
+from django.contrib.contenttypes.models import ContentType
+from backend.projects.models import Project, ProjectMember, Task, Tag, Attachment, Comment
+from backend.projects.serializers import ProjectListSerializer, ProjectDetailSerializer, TaskListSerializer, TaskDetailSerializer, TaskTagActionSerializer, TagSerializer, CommentSerializer, AttachmentSerializer, CommentCreateSerializer, AttachmentCreateSerializer
 from backend.projects.permissions import IsMemberOrOwner, IsProjectAdminOrOwner
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -154,4 +156,55 @@ class TaskViewSet(viewsets.ModelViewSet):
             task_serializer = TaskDetailSerializer(task, context={'request': request})
             return Response(task_serializer.data, status=status.HTTP_200_OK)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='add-comment',
+        permission_classes=[IsMemberOrOwner]
+    )
+    def add_comment(self, request, pk=None):
+        """
+        Ação para adicionar um comentário a uma tarefa específica.
+        """
+        task = self.get_object() # Obtém a tarefa pelo pk da URL
+        serializer = CommentCreateSerializer(data=request.data)
+
+        if serializer.is_valid():
+            # Associa os dados que não vêm do utilizador (autor e o objeto relacionado)
+            serializer.save(
+                author=request.user,
+                content_object=task
+            )
+            # Retorna o comentário recém-criado para o frontend
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(
+        detail=True, 
+        methods=['post'], 
+        url_path='add-attachment',
+        permission_classes=[IsMemberOrOwner],
+        # Define os parsers corretos para aceitar o upload de ficheiros
+        parser_classes=[MultiPartParser, FormParser]
+    )
+    def add_attachment(self, request, pk=None):
+        """
+        Ação para adicionar um anexo a uma tarefa específica.
+        """
+        task = self.get_object()
+        serializer = AttachmentCreateSerializer(data=request.data)
+
+        if serializer.is_valid():
+            # Associa o utilizador que fez o upload e o objeto relacionado
+            attachment = serializer.save(
+                uploaded_by=request.user,
+                content_object=task
+            )
+            # Para retornar o anexo completo (com dados do utilizador), usamos o serializer de leitura
+            response_serializer = AttachmentSerializer(attachment, context={'request': request})
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+            
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,8 +1,11 @@
+import os
+import uuid
 from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 
 class Tag(models.Model):
@@ -390,6 +393,18 @@ class Comment(models.Model):
         return f'Comentário de {self.author} em {self.created_at.strftime("%d/%m/%Y")}'
 
 
+def get_attachment_upload_path(instance, filename):
+    """
+    Gera um caminho único para o upload de anexos.
+    O formato será: 'attachments/YYYY/MM/DD/uuid_aleatorio.extensao'
+    """
+    ext = filename.split('.')[-1]
+    new_filename = f"{uuid.uuid4()}.{ext}"
+    now = timezone.now()
+    # Caminho relativo a MEDIA_ROOT
+    return os.path.join('attachments', now.strftime('%Y/%m/%d'), new_filename)
+
+
 class Attachment(models.Model):
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -397,7 +412,7 @@ class Attachment(models.Model):
         verbose_name=_("Enviado por")
     )
     file = models.FileField(
-        upload_to='attachments/%Y/%m/%d/'
+        upload_to=get_attachment_upload_path
     )
     description = models.CharField(
         _("Descrição"),
@@ -421,4 +436,4 @@ class Attachment(models.Model):
         verbose_name_plural = _("Anexos")
 
     def __str__(self):
-        return self.file.name.split('/')[-1]
+        return os.path.basename(self.file.name)
